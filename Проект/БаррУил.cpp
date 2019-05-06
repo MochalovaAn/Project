@@ -1,5 +1,7 @@
 #include "ÁàððÓèë.h"
- 
+
+typedef unsigned char byte;
+
 byte *rotlexcmp_buf = NULL;
 int rottexcmp_bufsize = 0;
  
@@ -23,11 +25,14 @@ int rotlexcmp(const void *l, const void *r)
  
 int bwt_pack(byte *buf_in, byte *buf_out, int size, int *primary_index)
 {
-    int indices[size];
+    int *indices;
     int i;
  
+    indices = (int *)malloc(size * sizeof(int));
+
     for(i=0; i<size; i++)
         indices[i] = i;
+
     rotlexcmp_buf = buf_in;
     rottexcmp_bufsize = size;
     qsort (indices, size, sizeof(int), rotlexcmp);
@@ -38,19 +43,25 @@ int bwt_pack(byte *buf_in, byte *buf_out, int size, int *primary_index)
     {
         if (indices[i] == 1) {
             *primary_index = i;
-            return;
+            free(indices);
+            return 0;
         }
     }
-    assert (0);
+
+    free(indices);
+    return -1;
 }
  
 int bwt_unpack(byte *buf_in, byte *buf_out, int size, int primary_index)
 {
-    byte F[size];
+    byte *F;
     int buckets[256];
     int i,j,k;
-    int indices[size];
+    int *indices;
  
+    F = (byte *)malloc(size * sizeof(byte));
+    indices = (int *)malloc(size * sizeof(int));
+
     for (i=0; i<256; i++)
         buckets[i] = 0;
     for (i=0; i<size; i++)
@@ -58,7 +69,14 @@ int bwt_unpack(byte *buf_in, byte *buf_out, int size, int primary_index)
     for (i=0,k=0; i<256; i++)
         for (j=0; j<buckets[i]; j++)
             F[k++] = i;
-    assert (k==size);
+    
+    if (k != size)
+    {
+        free(F);
+        free(indices);
+        return -1;
+    }
+
     for (i=0,j=0; i<256; i++)
     {
         while (i>F[j] && j<size)
@@ -73,6 +91,21 @@ int bwt_unpack(byte *buf_in, byte *buf_out, int size, int primary_index)
         buf_out[i] = buf_in[j];
         j=indices[j];
     }
+
+    free(F);
+    free(indices);
+
+    return 0;
+}
+
+size_t bwt_encode(char *buf_in, char *buf_out, size_t size)
+{
+    return 0;
+}
+
+size_t bwt_decode(char *buf_in, char *buf_out, size_t size)
+{
+    return 0;
 }
 
 //int main()

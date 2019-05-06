@@ -57,11 +57,6 @@ struct Node {
     }
 };
 
-int haffman_pack(byte *buf_in, byte *buf_out, int size)
-{
-	return -1;
-}
-
 //unsigned amounts[256]; // массив счетчиков встречаемости символов
 //int main() {
 //    string s;
@@ -78,3 +73,14 @@ int haffman_pack(byte *buf_in, byte *buf_out, int size)
 //    cout << "Digraph G {\n" << n->to_str() << "}";
 //    // Если вывод программы скопировать и вставить в адресную строку браузера, то увидим картинку.  
 //}
+
+size_t haffman_encode(char *buf_in, char *buf_out, size_t size)
+{
+	return 0;
+}
+
+size_t haffman_decode(char *buf_in, char *buf_out, size_t size)
+{
+	return 0;
+}
+

@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
-typedef unsigned char byte;
-
-int haffman_pack(byte *buf_in, byte *buf_out, int size);
+size_t haffman_encode(char *buf_in, char *buf_out, size_t size);
+size_t haffman_decode(char *buf_in, char *buf_out, size_t size);
 
 
