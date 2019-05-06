@@ -1,10 +1,7 @@
-//#include <unistd.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
  
-typedef unsigned char byte;
- 
-int bwt_pack(byte *buf_in, byte *buf_out, int size, int *primary_index);
-int bwt_unpack(byte *buf_in, byte *buf_out, int size, int primary_index);
+size_t bwt_encode(char *buf_in, char *buf_out, size_t size);
+size_t bwt_decode(char *buf_in, char *buf_out, size_t size);
