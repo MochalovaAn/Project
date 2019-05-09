@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+    <TextView
+        android:id="@+id/fileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Edit File"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/chooseFile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose file" />
+
+    <RadioGroup
+        android:id="@+id/alg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/ser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="seria" />
+
+        <RadioButton
+            android:id="@+id/bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="bar-yil" />
+
+        <RadioButton
+            android:id="@+id/haf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="haffman" />
+
+        <RadioButton
+            android:id="@+id/shano"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="shano" />
+
+        <RadioButton
+            android:id="@+id/arifm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="arifm" />
+
+        <RadioButton
+            android:id="@+id/lzss"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="lzss" />
+
+        <RadioButton
+            android:id="@+id/all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="all" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/doing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="START" />
+    <!--<FrameLayout-->
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/serStatL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DlinnSeryi" />
+
+        <ProgressBar
+            android:id="@+id/serStat"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/barStatL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bar-Yil" />
+
+        <ProgressBar
+            android:id="@+id/barStat"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hafStatL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Haffman" />
+
+        <ProgressBar
+            android:id="@+id/hafStat"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/shanoStatL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="shanoStat" />
+
+        <ProgressBar
+            android:id="@+id/shanoStat"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/arifmStatL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="arifmStat" />
+
+        <ProgressBar
+            android:id="@+id/arifmStat"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lzssStatL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="lzssStat" />
+
+        <ProgressBar
+            android:id="@+id/lzssStat"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- </FrameLayout>-->
+</LinearLayout>
