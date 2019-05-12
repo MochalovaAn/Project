@@ -1,21 +1,27 @@
 package com.example.project;
 
+import android.os.Environment;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 public class Shano {
     static int tsize; // table size (number of chars)
     static ShNone[] ptable; // table of probabilities
-    static char[] codes;
+    static String[] codes;
     static int codesSize;
 
-    static public int encode(String file) {
+    static public int encode(byte[] file) {
         int[] freqs = new int[1]; // frequency for each char from input text
         int size = 0;
-        char[] data = file.toCharArray();
         int total = 0;
-        char ch;
-        for (int i = 0; i < file.length(); i++) {
-            ch = data[i];
+        byte ch;
+        for (int i = 0; i < file.length; i++) {
+            ch = file[i];
             if (ch < size) {
                 freqs[ch]++;
             } else {
@@ -42,7 +48,7 @@ public class Shano {
         int j = 0;
         for (int i = 0; i < size; i++) {
             if (freqs[i] != 0) {
-                ptable[j].ch = (char) i;
+                ptable[j].ch = (byte) i;
                 ptable[j].p = (float) (freqs[i] / ftot);
                 j++;
             }
@@ -74,14 +80,40 @@ public class Shano {
 
         //  Outputing encoded text
         //
-        String newData = "";
-        for (int i = 0; i < file.length(); i++) {
-            newData += codes[data[i]];
+
+        File newData = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/download", "Sh.sj");
+
+        try {
+            DataOutputStream tmp = new DataOutputStream( new FileOutputStream(newData));
+            if (codes != null)
+                for (int i = 0; i < tsize; i++) {
+
+                    if (ptable[i].ch != 0)
+                    {
+                        tmp.writeByte(ptable[i].ch);
+                        tmp.writeUTF(codes[ptable[i].ch]);
+                    }
+                }
+
+
+            for (int i = 0; i < file.length; i++) {
+                tmp.writeUTF(codes[file[i]]);
+               }
+
+            size= tmp.size();
+            tmp.close();
+            int t = (int)(100*size/file.length) ;
+            return t;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
 
-        int l = newData.length();
-        int tmp = (int) (100 * newData.length() / file.length());
-        return (int) (100 * newData.length() / file.length());
+
+        return -1;
         /*
         fseek(inputFile, SEEK_SET, 0);
         printf(NL);
@@ -116,15 +148,15 @@ public class Shano {
             return;
         } else if (ri - li == 1) {
             if ((int) ptable[li].ch < codesSize)
-                codes[ptable[li].ch] += '0';
+                codes[(ptable[li].ch)]+= '0';
             else {
                 int tmp = codesSize;
                 codesSize = ptable[li].ch + 1;
-                char[] a = new char[ptable[li].ch + 1];
-                for (i = 0; i < codesSize; i++)
+                String[] a = new String[ptable[li].ch + 1];
+                for (i = 0; i < tmp; i++)
                     a[i] = codes[i];
                 codes = a;
-                codes[ptable[li].ch] += '0';
+                codes[ptable[li].ch] = codes[ptable[li].ch] + '0';
 
             }
 
@@ -133,8 +165,8 @@ public class Shano {
             else {
                 int tmp = codesSize;
                 codesSize = ptable[li].ch + 1;
-                char[] a = new char[ptable[ri].ch + 1];
-                for (i = 0; i < codesSize; i++)
+                String[] a = new String[ptable[ri].ch + 1];
+                for (i = 0; i < tmp; i++)
                     a[i] = codes[i];
                 codes = a;
                 codes[ptable[ri].ch] += '1';
@@ -153,15 +185,17 @@ public class Shano {
             isp = -1; // index of split pos
             phalf = pfull * 0.5f;
             for (i = li; i <= ri; ++i) {
-                if (ptable[i].p != 0.0) {
+                if (ptable[i].ch != 0) {
                     p += ptable[i].p;
                     if (p <= phalf) {
-                        if ((int) ptable[li].ch < codesSize)
-                            codes[ptable[li].ch] += '0';
+                        //индексы переделать! Смотри сишный код
+                        //забыла еще одну строшку
+                        if ((int) ptable[i].ch < codesSize)
+                            codes[ptable[i].ch] += '0';
                         else {
                             int tmp = codesSize;
                             codesSize = ptable[ri].ch + 1;
-                            char[] a = new char[ptable[li].ch + 1];
+                            String[] a = new String[ptable[li].ch + 1];
                             for (i = 0; i < tmp; i++)
                                 a[i] = codes[i];
                             codes = a;
@@ -169,30 +203,33 @@ public class Shano {
                             codesSize = ptable[li].ch + 1;
 
                         }
-
+                    } else {
                         if ((int) ptable[ri].ch < codesSize)
                             codes[ptable[ri].ch] += '0';
                         else {
                             codesSize = ptable[ri].ch + 1;
                             int tmp = codesSize;
-                            char[] a = new char[ptable[ri].ch + 1];
+                            String[] a = new String[ptable[ri].ch + 1];
                             for (i = 0; i < tmp; i++)
                                 a[i] = codes[i];
                             codes = a;
                             codes[ptable[ri].ch] += '1';
 
                         }
+                        if (isp < 0) isp = i;
                     }
                 }
             }
-                if (isp < 0) isp = li + 1;
 
-                //  Next step (recursive)
-                //
-                EncShannon(li, isp - 1);
-                EncShannon(isp, ri);
+            if (isp < 0) isp = li + 1;
+
+            //  Next step (recursive)
+            //
+            EncShannon(li, isp - 1);
+            EncShannon(isp, ri);
 
         }
+
     }
 
 

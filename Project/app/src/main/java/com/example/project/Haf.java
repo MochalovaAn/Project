@@ -1,22 +1,20 @@
 package com.example.project;
 
+import android.os.Environment;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Haf {
-
-    static public int encode(String file) {
-        byte ENCODING_TABLE_SIZE = 127;
-        HuffmanTree mainHuffmanTree;
-        int[] freqArray;
-        String[] encodingArray;
-        return 10;
-    }
-
-    ;
 
     private final byte ENCODING_TABLE_SIZE = 127;//длина таблицы
     private HuffmanTree mainHuffmanTree;//дерево Хаффмана (используется только для сжатия)
-    private String myString;//исходное сообщение
+    private byte[] myString;//исходное сообщение
     private int[] freqArray;//частотаная таблица
-    private String[] encodingArray;//кодировочная таблица
+    public String[] encodingArray;//кодировочная таблица
     private double ratio;//коэффициент сжатия
 
 
@@ -34,13 +32,13 @@ public class Haf {
     }//for extract;
 
     //---------------------------------------compression-----------------------------------------------------------
-    private String getCompressedString() {
+    public int getCompressedString() {
         String compressed = "";
         String intermidiate = "";//промежуточная строка(без добавочных нулей)
         //System.out.println("=============================Compression=======================");
         //displayEncodingArray();
-        for (int i = 0; i < myString.length(); i++) {
-            intermidiate += encodingArray[myString.charAt(i)];
+        for (int i = 0; i < myString.length; i++) {
+            intermidiate += encodingArray[myString[i]];
         }
         //Мы не можем писать бит в файл. Поэтому нужно сделать длину сообщения кратной 8=>
         //нужно добавить нули в конец(можно 1, нет разницы)
@@ -53,10 +51,42 @@ public class Haf {
         //склеить кол-во добавочных нулей в бинарном предаствлении и промежуточную строку
         compressed = String.format("%8s", Integer.toBinaryString(counter & 0xff)).replace(" ", "0") + intermidiate;
 
-        //идеализированный коэффициент
+
+        File newData = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/download", "RLEenc.sj");
+
+        File enctable = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/download", "RLEencTable.sj");
+
+
+        try {
+            DataOutputStream tmp = new DataOutputStream(new FileOutputStream(newData));
+            DataOutputStream tmp2 = new DataOutputStream(new FileOutputStream(enctable));
+            tmp.writeUTF(compressed); // write final data in file
+            for (int i = 0; i < encodingArray.length; i++) {
+               if(!encodingArray[i].equals(""))
+               {
+                   tmp2.writeUTF(encodingArray[i]); // запись в файл кодировочной таблицы
+               }
+            }
+
+            int size = tmp.size() + tmp2.size();
+            tmp.close();
+            tmp2.close();
+            int t = (int) (100 * size / myString.length);
+
+            setCompressionRatio();
+            return t;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         setCompressionRatio();
+        return -1;
+        //идеализированный коэффициент
         //System.out.println("===============================================================");
-        return compressed;
     }
 
     private void setCompressionRatio() {//посчитать идеализированный коэффициент

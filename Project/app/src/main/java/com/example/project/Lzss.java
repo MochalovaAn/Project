@@ -17,7 +17,7 @@ public class Lzss {
     static int o_bitcount;
     static  long  i_bitbuffer;
     static  int i_bitcount;
-    static public int encode(String file)
+    static public int encode(byte[] file)
     {
         return 20;
     };

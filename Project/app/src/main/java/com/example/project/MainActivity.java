@@ -23,9 +23,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 
 
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button chooseFIle;
     TextView fileName;
-    String fileData;
+    byte[] fileData;
     public static final int PERMISSIONS_REQUEST = 1, CHOOSE_CODE = 0;
 
     @Override
@@ -42,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        if ( ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED)
+        if ( ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED)
         {
-            ActivityCompat.requestPermissions(this,new String[]{READ_EXTERNAL_STORAGE},PERMISSIONS_REQUEST);
+            ActivityCompat.requestPermissions(this,new String[]{READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE},PERMISSIONS_REQUEST);
         }
 
 
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         ll = findViewById(R.id.serStatL);
                         pb = findViewById(R.id.serStat);
                         ll.setVisibility(View.VISIBLE);
-                        pb.setProgress(Haf.encode(fileData));
+                        pb.setProgress(Huffman.encode(fileData));
                         break;
                     case R.id.shano:
                         ll = findViewById(R.id.serStatL);
@@ -129,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                         ll = findViewById(R.id.serStatL);
                         pb = findViewById(R.id.serStat);
                         ll.setVisibility(View.VISIBLE);
-                        pb.setProgress(Haf.encode(fileData));
+                        pb.setProgress(Huffman.encode(fileData));
 
                         ll = findViewById(R.id.serStatL);
                         pb = findViewById(R.id.serStat);
@@ -179,25 +181,34 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }*/
-            try {
-                StringBuffer str = new StringBuffer();
-                String name = Environment.getExternalStorageDirectory().toString().substring(0,Environment.getExternalStorageDirectory().toString().length() - 2) + uri.getPath();
-
+           /* try {
                 // открываем поток для чтения
                 BufferedReader br = new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(uri)));
                 String stri = "";
-                char[] buf = new char[1024];
                 // читаем содержимое
                 int numRead = 0;
                 while ((stri = br.readLine()) != null) {
                     String readData = stri;
                     fileData +=readData;
                 }
-                br.close();/*
-                fileData = str.toString();*/
+                br.close();*//*
+                fileData = str.toString();*//*
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
+            }*/
+
+            InputStream is = null;
+            try {
+                is = /*new FileInputStream(new File(uri.getPath()))*/ getContentResolver().openInputStream(uri);
+                fileData = new byte[is.available()];
+                is.read(fileData);
+                is.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+           catch (IOException e) {
                 e.printStackTrace();
             }
 

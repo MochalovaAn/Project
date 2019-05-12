@@ -3,12 +3,12 @@ package com.example.project;
 public class Node {
 
     private int frequence;//частота
-    private char letter;//буква
+    private byte letter;//буква
     private Node leftChild;//левый потомок
     private Node rightChild;//правый потомок
 
 
-    public Node(char letter, int frequence) { //собственно, конструктор
+    public Node(byte letter, int frequence) { //собственно, конструктор
         this.letter = letter;
         this.frequence = frequence;
     }
@@ -43,9 +43,7 @@ public class Node {
         return frequence;
     }
 
-    public char getLetter() {
-        return letter;
-    }
+    public byte getLetter() { return letter;}
 
     public boolean isLeaf() {//проверка на лист
         return leftChild == null && rightChild == null;

@@ -1,5 +1,12 @@
 package com.example.project;
 
+import android.os.Environment;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 public class Arifm {
@@ -17,24 +24,39 @@ public class Arifm {
     static List<Integer> decodedBytes;
 
 
-    static public int encode(String file) {
-        int[] a = new int[file.length()];
-        char[] data = file.toCharArray();
-        for (int i = 0; i < file.length(); i++)
-            a[i] = (int) data[i];
+    static public int encode(byte[] file) {
         cumFreq = createFenwickTree(END + 1);
         encodedBits = new ArrayList<>();
         low = 0;
         high = (1 << BITS) - 1;
         additionalBits = 0;
-        for (int c : a)
+        for (int c : file)
             encodeSymbol(c);
         encodeSymbol(END);
         outputBit(true);
-        int[] bits = new int[encodedBits.size()];
-        for (int i = 0; i < bits.length; i++)
-            bits[i] = encodedBits.get(i) ? 1 : 0;
-        return (int)(100 * bits.length / file.length());
+
+        File newData = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/download", "Ar.sj");
+
+
+        try {
+            DataOutputStream tmp = new DataOutputStream( new FileOutputStream(newData));
+            int[] bits = new int[encodedBits.size()];
+            for (int i = 0; i < bits.length; i++) {
+                bits[i] = encodedBits.get(i) ? 1 : 0;
+                tmp.writeByte(encodedBits.get(i) ? 1 : 0);
+            }int size= tmp.size();
+            tmp.close();
+            int t = (int)(100*size/file.length) ;
+            return t;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
     }
 
     static void encodeSymbol(int c) {

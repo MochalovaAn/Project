@@ -2,14 +2,14 @@ package com.example.project;
 
 public class HuffmanTree {
     private final byte ENCODING_TABLE_SIZE = 127;//длина кодировочной таблицы
-    private String myString;//сообщение
+    private byte[] myString;//сообщение
     private BinaryTree huffmanTree;//дерево Хаффмана
     private int[] freqArray;//частотная таблица
     private String[] encodingArray;//кодировочная таблица
 
 
     //----------------constructor----------------------
-    public HuffmanTree(String newString) {
+    public HuffmanTree(byte[] newString) {
         myString = newString;
 
         freqArray = new int[ENCODING_TABLE_SIZE];
@@ -23,8 +23,8 @@ public class HuffmanTree {
 
     //--------------------frequence array------------------------
     private void fillFrequenceArray() {
-        for (int i = 0; i < myString.length(); i++) {
-            freqArray[(int)myString.charAt(i)]++;
+        for (int i = 0; i < myString.length; i++) {
+            freqArray[(int)myString[i]]++;
         }
     }
 
@@ -38,7 +38,7 @@ public class HuffmanTree {
         //алгоритм описан выше
         for (int i = 0; i < ENCODING_TABLE_SIZE; i++) {
             if (freqArray[i] != 0) {//если символ существует в строке
-                Node newNode = new Node((char) i, freqArray[i]);//то создать для него Node
+                Node newNode = new Node((byte)i, freqArray[i]);//то создать для него Node
                 BinaryTree newTree = new BinaryTree(newNode);//а для Node создать BinaryTree
                 pq.insert(newTree);//вставить в очередь
             }
@@ -79,20 +79,7 @@ public class HuffmanTree {
         return encodingArray;
     }
 
-    public void displayEncodingArray() {//для отладки
-        fillEncodingArray(huffmanTree.getRoot(), "", "");
-
-        System.out.println("======================Encoding table====================");
-        for (int i = 0; i < ENCODING_TABLE_SIZE; i++) {
-            if (freqArray[i] != 0) {
-                System.out.print((char)i + " ");
-                System.out.println(encodingArray[i]);
-            }
-        }
-        System.out.println("========================================================");
-    }
-    //-----------------------------------------------------
-    String getOriginalString() {
+    byte[] getOriginalString() {
         return myString;
     }
 }
