@@ -1,186 +1,304 @@
 /*
- * Compress text file by using Shannon-Fano (No real compression,
- * just get the 0101 code)
- *
- * Author: bonep
- * Last update: 20120425
- *
- * Please free feel to use this code in any way
- *
- * Compile:
- * linux> c++ Shannon-Fano.cpp
- *
- * Usage:
- * linux> ./a.out
- * (the input text file is hardcoded as text1.txt)
- */
+*  Shannon-Fano coding algorithm
+*  by Sergey Tikhonov (st@haqu.net)
+*
+*  Usage: shannon [OPTIONS] input [output]
+*    The default action is to encode input file.
+*    -d  Decode file.
+*
+*  Examples:
+*    shannon input.txt
+*    shannon input.txt encoded.txt
+*    shannon -d encoded.txt
+*/
 
-#include <stdio.h>
-#include <iostream>
+#ifdef _WIN32
+#define _CRT_SECURE_NO_DEPRECATE
+#define NL "\r\n"
+#else
+#define NL "\n"
+#endif
+
 #include <string>
 #include <vector>
-#include <algorithm>
-
-#define MAX_CHAR 256
+#include <map>
+#include <cassert>
 
 using namespace std;
 
-/*
- * Define SymbolCode Class
- */
-class SymbolCode {
-private:
-   char symbol;
-   int frequency;
-   string code;
-public:
-   SymbolCode( char in_symbol, int in_frequency );
-   char getSymbol( void );
-   int getFrequency( void );
-   string getCode( void );
-   void addCode( string in_code );
+struct pnode
+{
+	char ch; // char
+	float p; // probability
 };
 
-SymbolCode::SymbolCode( char in_symbol, int in_frequency ) {
-   symbol = in_symbol;
-   frequency = in_frequency;
-   code = "";
+static int pnode_compare(const void *elem1, const void *elem2)
+{
+	const pnode a = *(pnode*)elem1;
+	const pnode b = *(pnode*)elem2;
+	if (a.p < b.p) return 1; // 1 - less (reverse for decreasing sort)
+	else if (a.p > b.p) return -1;
+	return 0;
 }
 
-char SymbolCode::getSymbol( void ) {
-   return symbol;
+class Coder
+{
+private:
+	int tsize; // table size (number of chars)
+	pnode *ptable; // table of probabilities
+	map<char, string> codes; // codeword for each char
+
+public:
+	void Encode(const char *inputFilename, const char *outputFilename)
+	{
+		map<char, int> freqs; // frequency for each char from input text
+		int i;
+
+		//  Opening input file
+		//
+		FILE *inputFile;
+		inputFile = fopen(inputFilename, "r");
+		assert(inputFile);
+
+		//  Counting chars
+		//
+		char ch; // char
+		unsigned total = 0;
+		while (fscanf(inputFile, "%c", &ch) != EOF)
+		{
+			freqs[ch]++;
+			total++;
+		}
+		tsize = (int)freqs.size();
+
+		//  Building decreasing freqs table
+		//
+		ptable = new pnode[tsize];
+		assert(ptable);
+		float ftot = float(total);
+		map<char, int>::iterator fi;
+		for (fi = freqs.begin(), i = 0; fi != freqs.end(); ++fi, ++i)
+		{
+			ptable[i].ch = (*fi).first;
+			ptable[i].p = float((*fi).second) / ftot;
+		}
+		qsort(ptable, tsize, sizeof(pnode), pnode_compare);
+
+		//  Encoding
+		//
+		EncShannon(0, tsize - 1);
+
+		//  Opening output file
+		//
+		FILE *outputFile;
+		outputFile = fopen(outputFilename, "wb");
+		assert(outputFile);
+
+		//  Outputing ptable and codes
+		//
+		printf("%i",NL, tsize);
+		fprintf(outputFile, "%i",NL, tsize);
+		for (i = 0; i<tsize; i++)
+		{
+			printf("%c\t%f\t%s",NL, ptable[i].ch, ptable[i].p, codes[ptable[i].ch].c_str());
+			fprintf(outputFile, "%c\t%f\t%s",NL, ptable[i].ch, ptable[i].p, codes[ptable[i].ch].c_str());
+		}
+
+		//  Outputing encoded text
+		//
+		fseek(inputFile, SEEK_SET, 0);
+		printf(NL);
+		fprintf(outputFile, NL);
+		while (fscanf(inputFile, "%c", &ch) != EOF)
+		{
+			printf("%s", codes[ch].c_str());
+			fprintf(outputFile, "%s", codes[ch].c_str());
+		}
+		printf(NL);
+
+		//  Cleaning
+		//
+		codes.clear();
+		delete[] ptable;
+
+		//  Closing files
+		//
+		fclose(outputFile);
+		fclose(inputFile);
+	}
+
+	void Decode(const char *inputFilename, const char *outputFilename)
+	{
+		//  Opening input file
+		//
+		FILE *inputFile;
+		inputFile = fopen(inputFilename, "r");
+		assert(inputFile);
+
+		//  Loading codes
+		//
+		fscanf(inputFile, "%i", &tsize);
+		char ch, code[128];
+		float p;
+		int i;
+		fgetc(inputFile); // skip end line
+		for (i = 0; i<tsize; i++)
+		{
+			ch = fgetc(inputFile);
+			fscanf(inputFile, "%f %s", &p, code);
+			codes[ch] = code;
+			fgetc(inputFile); // skip end line
+		}
+		fgetc(inputFile); // skip end line
+
+						  //  Opening output file
+						  //
+		FILE *outputFile;
+		outputFile = fopen(outputFilename, "w");
+		assert(outputFile);
+
+		//  Decoding and outputing to file
+		//
+		string accum = "";
+		map<char, string>::iterator ci;
+		while ((ch = fgetc(inputFile)) != EOF)
+		{
+			accum += ch;
+			for (ci = codes.begin(); ci != codes.end(); ++ci)
+				if (!strcmp((*ci).second.c_str(), accum.c_str()))
+				{
+					accum = "";
+					printf("%c", (*ci).first);
+					fprintf(outputFile, "%c", (*ci).first);
+				}
+		}
+		printf(NL);
+
+		//  Cleaning
+		//
+		fclose(outputFile);
+		fclose(inputFile);
+	}
+
+private:
+	void EncShannon(int li, int ri)
+	{
+		int i, isp;
+		float p;
+		float pfull;
+		float phalf;
+
+		if (li == ri)
+		{
+			return;
+		}
+		else if (ri - li == 1)
+		{
+			//  If interval consist of 2 elements then it's simple
+			//
+			codes[ptable[li].ch] += '0';
+			codes[ptable[ri].ch] += '1';
+		}
+		else
+		{
+			//  Calculating sum of probabilities at specified interval
+			//
+			pfull = 0;
+			for (i = li; i <= ri; ++i)
+			{
+				pfull += ptable[i].p;
+			}
+
+			//  Searching center
+			//
+			p = 0;
+			isp = -1; // index of split pos
+			phalf = pfull * 0.5f;
+			for (i = li; i <= ri; ++i)
+			{
+				p += ptable[i].p;
+				if (p <= phalf) {
+					codes[ptable[i].ch] += '0';
+				}
+				else
+				{
+					codes[ptable[i].ch] += '1';
+					if (isp < 0) isp = i;
+				}
+			}
+
+			if (isp < 0) isp = li + 1;
+
+			//  Next step (recursive)
+			//
+			EncShannon(li, isp - 1);
+			EncShannon(isp, ri);
+		}
+	}
+};
+
+int show_usage() {
+	printf("Shannon-Fano coding algorithm",NL);
+	printf("by Sergey Tikhonov (st@haqu.net)",NL);
+	printf(NL);
+	printf("Usage: shannon [OPTIONS] input [output]",NL);
+	printf("  The default action is to encode input file.",NL);
+	printf("  -d\tDecode file.",NL);
+	printf(NL);
+	printf("Examples:",NL);
+	printf("  shannon input.txt",NL);
+	printf("  shannon input.txt encoded.txt",NL);
+	printf("  shannon -d encoded.txt",NL);
+	printf(NL);
+	exit(0);
 }
 
-int SymbolCode::getFrequency( void ) {
-   return frequency;
-}
+int main(int argc, char **argv)
+{
+	int i = 1;
+	int dFlag = 0;
+	char inputFilename[128];
+	char outputFilename[128];
 
-string SymbolCode::getCode( void ) {
-   return code;
-}
+	printf(NL);
 
-void SymbolCode::addCode( string in_code ) {
-   code += in_code;
-}
-/*
- * End SymbolCode Class
- */
+	if (i == argc) show_usage();
 
-// store the symbol sorted by frequency of which frequency not zero
-vector<SymbolCode> symbol;
+	if (strcmp(argv[i], "-d") == 0) {
+		dFlag = 1;
+		i++;
+		if (i == argc) show_usage();
+	}
 
-// store the input frequency
-char frequency[ MAX_CHAR ];
+	strcpy(inputFilename, argv[i]);
+	i++;
 
-void printSymbolCode( SymbolCode in_symbol ) {
-   cout << "Symbol: " << in_symbol.getSymbol();
-   cout << " Freq: " << in_symbol.getFrequency();
-   cout << " Code: " << in_symbol.getCode() << endl;
-}
+	if (i < argc) {
+		strcpy(outputFilename, argv[i]);
+	}
+	else {
+		if (dFlag) {
+			strcpy(outputFilename, "decoded.txt");
+		}
+		else {
+			strcpy(outputFilename, "encoded.txt");
+		}
+	}
 
-void shannonFano( int in_begin, int in_end ) {
-   // not a valid parameters input
-   if ( in_begin >= in_end ) {
-      return;
-   }
+	//  Calling encoding or decoding subroutine
+	//
+	Coder *coder;
+	coder = new Coder;
+	assert(coder);
+	if (!dFlag) {
+		coder->Encode(inputFilename, outputFilename);
+	}
+	else {
+		coder->Decode(inputFilename, outputFilename);
+	}
+	delete coder;
 
-   // only 2 symbol left
-   if ( in_begin == in_end - 1 ) {
-      symbol.at( in_begin ).addCode( "0" );
-      symbol.at( in_end ).addCode( "1" );
-      return;
-   }
+	printf(NL);
 
-   int highPtr = in_begin; // highPtr will go downward
-   int lowPtr = in_end;
-   int highSum = symbol.at( highPtr ).getFrequency();
-   int lowSum = symbol.at( lowPtr ).getFrequency();
-
-   // move the highPtr down and lowPtr up until highSum and lowSum close
-   while ( highPtr != lowPtr - 1 ) {
-      if ( highSum > lowSum ) {
-         lowPtr --;
-         lowSum += symbol.at( lowPtr ).getFrequency();
-      } else {
-         highPtr ++;
-         highSum += symbol.at( highPtr ).getFrequency();
-      }
-   }
-
-   int i;
-   for ( i=in_begin; i<=highPtr; i++ ) {
-      symbol.at( i ).addCode( "0" );
-   }
-   for ( i=lowPtr; i<=in_end; i++ ) {
-      symbol.at( i ).addCode( "1" );
-   }
-
-   shannonFano( in_begin, highPtr );
-   shannonFano( lowPtr, in_end );
-}
-
-int main () {
-   FILE * pFile;
-   int c;
-   int n = 0;
-   pFile = fopen("text1.txt","r");
-   if (pFile==NULL) {
-      perror ("Error opening file");
-   } else {
-      int i;
-      for ( i=0; i<MAX_CHAR; i++ ) {
-         frequency[ i ] = 0;
-      }
-      do {
-         c = fgetc (pFile);
-         if ( c != EOF ) {
-            frequency[ c ] ++;
-            printf( "%c", c );
-         }
-      } while (c != EOF);
-      fclose (pFile);
-   }
-
-   // print the frequency information
-   cout << endl << endl;
-   int i;
-   for ( i=0; i<MAX_CHAR; i++ ) {
-      if ( frequency[ i ] != 0 ) {
-         printf( "%d, %c: %d\n", i, i, frequency[ i ] );
-      }
-   }
-
-   // insert and sort the symbol
-   printf( "\n\n" );
-   for ( i=0; i<MAX_CHAR; i++ ) {
-      if ( frequency[ i ] != 0 ) {
-         if ( symbol.empty() ) {
-            SymbolCode newSymbol( i, frequency[ i ] );
-            symbol.push_back( newSymbol );
-         } else {
-            int j;
-            vector<SymbolCode>::iterator it;
-            it = symbol.begin();
-            for ( j=0; j<symbol.size(); j++ ) {
-               if ( frequency[ i ] >= symbol[ j ].getFrequency() ) {
-                  SymbolCode newSymbol( i, frequency[ i ] );
-                  symbol.insert( it, newSymbol );
-                  break;
-               } else if ( j == symbol.size() - 1 ) {
-                  SymbolCode newSymbol( i, frequency[ i ] );
-                  symbol.push_back( newSymbol );
-                  break;
-               }
-               it ++;
-            }
-         }
-      }
-   }
-
-   shannonFano( 0, symbol.size() - 1 );
-  
-   printf( "\n\n" );
-   for_each( symbol.begin(), symbol.end(), printSymbolCode );
-
-   return 0;
+	return 0;
 }

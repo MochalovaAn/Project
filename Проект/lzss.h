@@ -1,5 +1,5 @@
-#include <stdio.h>
 
+#include <stdio.h>
 /* Коды ошибок */
 #define NO_ERROR 0
 #define BAD_FILE 1

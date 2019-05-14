@@ -1,5 +1,6 @@
-#include "lzss.h"
+#define _CRT_SECURE_NO_WARNINGS
 
+#include "lzss.h"
 /* Коды ошибок */
 #define NO_ERROR 0
 #define BAD_FILE 1
@@ -221,39 +222,27 @@ void lzss_decode()
 };
 //---------------------------------------------------------
 // гравная функция
-int _tmain(int argc, _TCHAR* argv[])
-{
- if (argc!=4) {
-  printf("Usage:\n  LZSS e(encode)|d(decode) input output\n");
-  return(BAD_ARGUMENT);
- };
 
- switch (argv[1][0]) {
-  case 'D': case 'd':
-  case 'E': case 'e':
-   if ((infile = fopen(argv[2],"rb")) == NULL) {
-    printf(" Unable to open input file '%s'.\n", argv[2]);
-    return(BAD_FILE);
-   };
 
-   if ((outfile = fopen(argv[3],"wb")) == NULL) {
-    printf(" Unable to open output file '%s'.\n", argv[3]);
-    return(BAD_FILE);
-   };
-
-   break;
-  default:
-   printf(" Unknown option selector '%s' - use D or E", argv[1]);
-   return(BAD_ARGUMENT);
- };
-
- if (toupper(argv[1][0]) == 'E') lzss_encode(); else lzss_decode();
-
- fclose(infile);
- fclose(outfile);
-
- fprintf(stderr,"\nLZSS complete\n");
-
- return NO_ERROR;
-
-}
+//int main()
+//{
+//
+//
+//	infile = fopen("E:\\dir\\T1.txt", "rb");
+//	outfile = fopen("E:\\dir\\Yes2.txt", "wb");
+//	lzss_encode();
+//	
+//	fclose(infile);
+//	fclose(outfile);
+//
+//	infile = fopen("E:\\dir\\Yes2.txt", "rb");
+//	outfile = fopen("E:\\dir\\Yes3.txt", "wb");
+//	lzss_decode();
+//
+//	fclose(infile);
+//	fclose(outfile);
+//	fprintf(stderr, "\nLZSS complete\n");
+//
+//	return NO_ERROR;
+//
+//}

@@ -1,8 +1,73 @@
-#include "Header.h"
+#include "get_files.h"
+#include "Haffman.h"
+#include "Шано.h"
+
+string HaffE = "E:\\dir\\Haff\\EC\\";
+string HaffD = "E:\\dir\\Haff\\DC\\";
+
+
+void HaffmanC(tstring A, int i)
+{
+	cout << endl << "go";
+	COMPRESSED_FILE *output;
+	FILE *input;
+	input = fopen(get_way(A).c_str(), "rb+");
+	if (input == NULL)
+		fatal_error("Error open source file.\n");
+
+	char st[50];
+	string str = to_string(i);
+	str = HaffE + str;
+	strcpy(st, str.c_str());
+
+	output = OpenOutputCompressedFile(st);
+	if (output == NULL)
+		fatal_error("Error open target file.s\n");
+	CompressFile(input, output);
+	CloseOutputCompressedFile(output);
+	fclose(input);
+}
+
+void HaffmanD(tstring A, int i)
+{
+	FILE *output;
+	COMPRESSED_FILE *input;
+
+	char* st;
+	st = new char[50];
+	string str = to_string(i);
+	str = HaffE + str;
+	strcpy(st, str.c_str());
+
+	input = OpenInputCompressedFile(st);
+	if (input == NULL)
+		fatal_error("Error open source file.\n");
+
+
+	delete[] st;
+	st = new char[50];
+
+	string a;
+	for (char x : A)
+		a += x;
+
+	str = HaffD + a;
+	strcpy(st, str.c_str());
+	cout << str;
+
+	output = fopen(st, "wb");
+	if (output == NULL)
+		fatal_error("Error open target file.s\n");
+	ExpandFile(input, output);
+	CloseInputCompressedFile(input);
+	fclose(output);
+}
 
 
 int main(void) {
-	const TCHAR fn[] = _T("E:\\dir\\*.jpg*");
+
+	
+	const TCHAR fn[] = _T("E:\\dir\\*.txt*");
 	std::vector<tstring> fs;
 	std::vector<tstring>::const_iterator i;
 
@@ -10,46 +75,24 @@ int main(void) {
 	for (i = fs.begin(); i != fs.end(); ++i)
 		_putts(i->c_str());
 
+	
+	/*long sLen = 0;
+	char* file_data_c = get_string(fs[1], sLen);
+	string file_data;
+	strcpy(file_data_c, file_data.c_str());*/
 
-	//Формирование пути
-	tstring A = fs[1];
-	string a;
-	for (char x : A)
-		a += x;
-	string b = { "E:\\dir\\" };
-	string c = b + a;
+	
 
-
-	long sLen;
-	char * str;
-	FILE *f = fopen(c.c_str(), "rb+");
-	if (!f)
-		printf("Error open\n"); 
-	else
+	for (int i = 0; i < fs.size(); i++)
 	{
-		fseek(f, 0, SEEK_END);//Указатель вконец файла
-		sLen = ftell(f);//Получаем длинну файла
-		fseek(f, 0, SEEK_SET);//Указатель вначало файла
-		if (!(str = (char *)malloc((sLen + 1) * sizeof(char))))
-			printf("Allocation memory error\n");
-		else
-		{
-			fread(str, sLen, 1, f);
-			str[sLen] = '\0';//Терминатор вконце строки обязательно!
-		}
-		fclose(f);
-
-		/*if (str) {
-			for(int k=0; k<sLen;k++)
-			{
-				cout << str[k];
-			}*/
-		//}//В теле if организуем действия со считанной инфой из файла - она вся в str
+		HaffmanC(fs[i], i+1);
+		HaffmanD(fs[i], i + 1);
 	}
 
-
-	string newdata1 = haffman_encode(str);
-
+	for (int i = 0; i < fs.size(); i++)
+	{
+		////////////////////////////Шано/////////////////////
+	}
 	_gettchar();
 	return 0;
 }

@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <codecvt>
+#include <conio.h> 
 
 using namespace std;
 
@@ -19,6 +20,7 @@ typedef std::wstring tstring;
 typedef std::string tstring;
 #endif
 
+string way = "E:\\dir\\";
 
 BOOL get_files(LPCTSTR folder, std::vector<tstring>* files,	BOOL full_path = FALSE)
  {
@@ -45,5 +47,37 @@ BOOL get_files(LPCTSTR folder, std::vector<tstring>* files,	BOOL full_path = FAL
 	return TRUE;
 }
 
+string get_way(tstring A)
+{
+	string a;
+	for (char x : A)
+		a += x;
 
+	string c = way + a;
+	return c;
+}
+
+char* get_string(tstring A, long& sLen)
+{ 
+	char * str;
+	FILE *f = fopen( get_way(A).c_str(), "rb+");
+	if (!f)
+		printf("Error open\n");
+	else
+	{
+		fseek(f, 0, SEEK_END);//Указатель вконец файла
+		sLen = ftell(f);//Получаем длинну файла
+		fseek(f, 0, SEEK_SET);//Указатель вначало файла
+		if (!(str = (char *)malloc((sLen + 1) * sizeof(char))))
+			printf("Allocation memory error\n");
+		else
+		{
+			fread(str, sLen, 1, f);
+			str[sLen] = '\0';//Терминатор вконце строки обязательно!
+		}
+		fclose(f);
+
+		return str;
+	}
+}
 
