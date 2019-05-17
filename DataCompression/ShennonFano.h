@@ -96,25 +96,25 @@ public:
 
 		//  Outputing ptable and codes
 		//
-		printf("%i",NL, tsize);
-		fprintf(outputFile, "%i",NL, tsize);
+		
+		fprintf(outputFile, "%i\r\n", tsize);
 		for (i = 0; i<tsize; i++)
 		{
-			printf("%c\t%f\t%s",NL, ptable[i].ch, ptable[i].p, codes[ptable[i].ch].c_str());
-			fprintf(outputFile, "%c\t%f\t%s",NL, ptable[i].ch, ptable[i].p, codes[ptable[i].ch].c_str());
+			
+			fprintf(outputFile, "%c\t%f\t%s\r\n", ptable[i].ch, ptable[i].p, codes[ptable[i].ch].c_str());
 		}
 
 		//  Outputing encoded text
 		//
 		fseek(inputFile, SEEK_SET, 0);
-		printf(NL);
+		
 		fprintf(outputFile, NL);
 		while (fscanf(inputFile, "%c", &ch) != EOF)
 		{
-			printf("%s", codes[ch].c_str());
+			
 			fprintf(outputFile, "%s", codes[ch].c_str());
 		}
-		printf(NL);
+	
 
 		//  Cleaning
 		//
@@ -168,11 +168,10 @@ public:
 				if (!strcmp((*ci).second.c_str(), accum.c_str()))
 				{
 					accum = "";
-					printf("%c", (*ci).first);
 					fprintf(outputFile, "%c", (*ci).first);
 				}
 		}
-		printf(NL);
+		
 
 		//  Cleaning
 		//
@@ -237,60 +236,24 @@ private:
 	}
 };
 
-int show_usage() {
-	printf("Shannon-Fano coding algorithm",NL);
-	printf("by Sergey Tikhonov (st@haqu.net)",NL);
-	printf(NL);
-	printf("Usage: shannon [OPTIONS] input [output]",NL);
-	printf("  The default action is to encode input file.",NL);
-	printf("  -d\tDecode file.",NL);
-	printf(NL);
-	printf("Examples:",NL);
-	printf("  shannon input.txt",NL);
-	printf("  shannon input.txt encoded.txt",NL);
-	printf("  shannon -d encoded.txt",NL);
-	printf(NL);
-	exit(0);
-}
 
-int main(int argc, char **argv)
+void go1(const char *st1, const char *st2, bool coded = true)
 {
-	int i = 1;
-	int dFlag = 0;
 	char inputFilename[128];
 	char outputFilename[128];
 
-	printf(NL);
-
-	if (i == argc) show_usage();
-
-	if (strcmp(argv[i], "-d") == 0) {
-		dFlag = 1;
-		i++;
-		if (i == argc) show_usage();
-	}
-
-	strcpy(inputFilename, argv[i]);
-	i++;
-
-	if (i < argc) {
-		strcpy(outputFilename, argv[i]);
-	}
-	else {
-		if (dFlag) {
-			strcpy(outputFilename, "decoded.txt");
-		}
-		else {
-			strcpy(outputFilename, "encoded.txt");
-		}
-	}
+	
+	
+	strcpy(inputFilename, st1);
+	strcpy(outputFilename, st2);
+	
 
 	//  Calling encoding or decoding subroutine
 	//
 	Coder *coder;
 	coder = new Coder;
 	assert(coder);
-	if (!dFlag) {
+	if (coded) {
 		coder->Encode(inputFilename, outputFilename);
 	}
 	else {
@@ -298,7 +261,6 @@ int main(int argc, char **argv)
 	}
 	delete coder;
 
-	printf(NL);
+	
 
-	return 0;
 }

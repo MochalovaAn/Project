@@ -156,47 +156,43 @@ void rle1decoding()
 	}
 }
 //---------------------------------------------------------
-// Вывод помощи о пользовании программой
-void help()
-{
-	printf("RLE_01 e(encoding)|d(decoding) source target\n");
-}
+
 //---------------------------------------------------------
  
-int _tmain(int argc, _TCHAR* argv[])
-{
-	if (argc != 4)
-	{
-		help();
-		exit(BAD_ARGUMENT);
-	}
-	else 
-		if (tolower(argv[1][0]) != 'e' && tolower(argv[1][0]) != 'd')
-		{
-			help();
-			exit(BAD_ARGUMENT);
-		}
-		else 
-			if ((source_file = fopen(argv[2], "rb")) == NULL)
-			{
-				help();
-				exit(BAD_FILE_NAME);
-			}
-			else 
-				if ((dest_file = fopen(argv[3], "wb")) == NULL)
-				{
-					help();
-					exit(BAD_FILE_NAME);
-				}
-				else 
-				{
-					if (tolower(argv[1][0]) == 'e')
-						rle1encoding();
-					else 
-						rle1decoding();
-					fclose(source_file);
-					fclose(dest_file);
-	}
-	printf("Completed.\n");
-	return (NO_ERROR);
-}
+//int _tmain(int argc, _TCHAR* argv[])
+//{
+//	if (argc != 4)
+//	{
+//		help();
+//		exit(BAD_ARGUMENT);
+//	}
+//	else 
+//		if (tolower(argv[1][0]) != 'e' && tolower(argv[1][0]) != 'd')
+//		{
+//			help();
+//			exit(BAD_ARGUMENT);
+//		}
+//		else 
+//			if ((source_file = fopen(argv[2], "rb")) == NULL)
+//			{
+//				help();
+//				exit(BAD_FILE_NAME);
+//			}
+//			else 
+//				if ((dest_file = fopen(argv[3], "wb")) == NULL)
+//				{
+//					help();
+//					exit(BAD_FILE_NAME);
+//				}
+//				else 
+//				{
+//					if (tolower(argv[1][0]) == 'e')
+//						rle1encoding();
+//					else 
+//						rle1decoding();
+//					fclose(source_file);
+//					fclose(dest_file);
+//	}
+//	printf("Completed.\n");
+//	return (NO_ERROR);
+//}

@@ -81,3 +81,34 @@ char* get_string(tstring A, long& sLen)
 	}
 }
 
+long file_size(const char *name)
+{
+	long eof_ftell;
+	FILE *file;
+
+	file = fopen(name, "r");
+	if (file == NULL)
+		return(0L);
+	fseek(file, 0L, SEEK_END);
+	eof_ftell = ftell(file);
+	fclose(file);
+	return(eof_ftell);
+}
+
+void print_ratios(const char *input,const char *output)
+{
+	long input_size;
+	long output_size;
+	int ratio;
+
+	input_size = file_size(input);
+	if (input_size == 0)
+		input_size = 1;
+	output_size = file_size(output);
+	ratio = 100 - (int)(output_size * 100L / input_size);
+	printf("\nSource filesize:\t%ld\n", input_size);
+	printf("Target Filesize:\t%ld\n", output_size);
+	if (output_size == 0)
+		output_size = 1;
+	printf("Compression ratio:\t\t%d%%\n", ratio);
+}

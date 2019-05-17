@@ -88,51 +88,7 @@ void RebuildTree(TREE *tree);
 void swap_nodes(TREE *tree, int i, int j);
 void add_new_node(TREE *tree, int c);
 //=========================================================
-//---------------------------------------------------------
-// Вывод помощи о пользовании программой 
-void help()
-{
-	printf("HuffAdapt e(encoding)|d(decoding) input output\n");
-}
-//---------------------------------------------------------
-// Эта функция возвращает размер указанного ей файла
-#ifndef SEEK_END
-#define SEEK_END 2
-#endif
-long file_size(char *name)
-{
-	long eof_ftell;
-	FILE *file;
 
-	file = fopen(name, "r");
-	if (file == NULL)
-		return(0L);
-	fseek(file, 0L, SEEK_END);
-	eof_ftell = ftell(file);
-	fclose(file);
-	return(eof_ftell);
-}
-//---------------------------------------------------------
-/*  Эта фунцция выводит результаты сжатия
-после окончания сжатия
-*/
-void print_ratios(char *input, char *output)
-{
-	long input_size;
-	long output_size;
-	int ratio;
-
-	input_size = file_size(input);
-	if (input_size == 0)
-		input_size = 1;
-	output_size = file_size(output);
-	ratio = 100 - (int)(output_size * 100L / input_size);
-	printf("\nSource filesize:\t%ld\n", input_size);
-	printf("Target Filesize:\t%ld\n", output_size);
-	if (output_size == 0)
-		output_size = 1;
-	printf("Compression ratio:\t\t%d%%\n", ratio);
-}
 //---------------------------------------------------------
 // вывод сообщения об ошибке
 void fatal_error(char *fmt)
@@ -180,7 +136,8 @@ void CloseOutputCompressedFile(COMPRESSED_FILE *compressed_file)
 	if (compressed_file->mask != 0x80)
 		if (putc(compressed_file->rack, compressed_file->file) !=
 			compressed_file->rack)
-			fatal_error("Error on close compressed file.\n");
+		{
+		}
 	fclose(compressed_file->file);
 	free((char *)compressed_file);
 }
@@ -202,10 +159,11 @@ void OutputBit(COMPRESSED_FILE *compressed_file, int bit)
 	{
 		if (putc(compressed_file->rack, compressed_file->file) !=
 			compressed_file->rack)
-			fatal_error("Error on OutputBit!\n");
+		{
+		}
 		else if ((compressed_file->pacifier_counter++ &
 			PACIFIER_COUNT) == 0)
-			putc('.', stdout);
+			
 		compressed_file->rack = 0;
 		compressed_file->mask = 0x80;
 	}
@@ -227,10 +185,11 @@ void OutputBits(COMPRESSED_FILE *compressed_file,
 		{
 			if (putc(compressed_file->rack, compressed_file->file) !=
 				compressed_file->rack)
-				fatal_error("Error on OutputBits!\n");
+			{
+			}
 			else if ((compressed_file->pacifier_counter++ &
 				PACIFIER_COUNT) == 0)
-				putc('.', stdout);
+				
 			compressed_file->rack = 0;
 			compressed_file->mask = 0x80;
 		}
@@ -247,10 +206,12 @@ int InputBit(COMPRESSED_FILE *compressed_file)
 	{
 		compressed_file->rack = getc(compressed_file->file);
 		if (compressed_file->rack == EOF)
-			fatal_error("Error on InputBit!\n");
+		{
+		}
 		if ((compressed_file->pacifier_counter++ &
 			PACIFIER_COUNT) == 0)
-			putc('.', stdout);
+		{
+		}
 	}
 	value = compressed_file->rack & compressed_file->mask;
 	compressed_file->mask >>= 1;
@@ -274,10 +235,12 @@ unsigned long InputBits(COMPRESSED_FILE *compressed_file,
 		{
 			compressed_file->rack = getc(compressed_file->file);
 			if (compressed_file->rack == EOF)
-				fatal_error("Error on InputBits!\n");
+			{
+			}
 			if ((compressed_file->pacifier_counter++ &
 				PACIFIER_COUNT) == 0)
-				putc('.', stdout);
+			{
+			}
 		}
 		if (compressed_file->rack & compressed_file->mask)
 			return_value |= mask;
@@ -319,7 +282,8 @@ void ExpandFile(COMPRESSED_FILE *input, FILE *output)
 	while ((c = DecodeSymbol(&Tree, input)) != END_OF_STREAM)
 	{
 		if (putc(c, output) == EOF)
-			fatal_error("Error on output");
+		{
+		}
 		UpdateModel(&Tree, c);
 	}
 }
@@ -465,7 +429,6 @@ void RebuildTree(TREE *tree)
 	int k;
 	unsigned int weight;
 
-	printf("R");
 	j = tree->next_free_node - 1;
 	for (i = j; i >= ROOT_NODE; i--)
 	{
